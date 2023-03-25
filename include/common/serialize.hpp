@@ -5,8 +5,8 @@
 #ifndef RISCV32_SIM_SERIALIZE_HPP
 #define RISCV32_SIM_SERIALIZE_HPP
 
-#include "common/program_counter.hpp"
 #include "op.hpp"
+#include "program_counter.hpp"
 
 #include <nlohmann/json.hpp>
 

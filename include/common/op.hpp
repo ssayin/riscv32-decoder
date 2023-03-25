@@ -5,7 +5,6 @@
 #ifndef OP_HPP
 #define OP_HPP
 
-#include "common/program_counter.hpp"
 #include "op_type.hpp"
 
 struct op {
@@ -18,13 +17,6 @@ struct op {
   bool     has_imm;
   bool     use_pc        = false;
   bool     is_compressed = false;
-};
-
-struct hart_state {
-  op              dec;
-  program_counter pc;
-  uint32_t        instr;
-  hart_state(uint32_t pc) : pc{pc} {}
 };
 
 #endif

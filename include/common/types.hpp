@@ -6,7 +6,6 @@
 #define COMMON_TYPES_HPP
 
 #include "masks.hpp"
-#include "program_counter.hpp"
 
 #include <string>
 #include <type_traits>
