@@ -47,9 +47,32 @@ template <> struct adl_serializer<op_type> {
 
 } // namespace nlohmann
 
+using json = nlohmann::json;
+
+inline void to_json(json &j, const gpr_change &gpr) {
+  j = json{{"index", gpr.index}, {"prev", gpr.prev}, {"next", gpr.next}};
+}
+
+inline void from_json(const json &j, gpr_change &gpr) {
+  gpr.index = j.at("index").get<uint8_t>();
+  gpr.prev  = j.at("prev").get<uint32_t>();
+  gpr.next  = j.at("next").get<uint32_t>();
+}
+
+inline void to_json(json &j, const csr_change &csr) {
+  j = json{{"index", csr.index}, {"prev", csr.prev}, {"next", csr.next}};
+}
+
+inline void from_json(const json &j, csr_change &csr) {
+  csr.index = j.at("index").get<uint16_t>();
+  csr.prev  = j.at("prev").get<uint32_t>();
+  csr.next  = j.at("next").get<uint32_t>();
+}
+
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(op, imm, opt, tgt, rd, rs1, rs2, has_imm,
                                    use_pc, is_compressed)
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(hart_state, pc, instr, dec)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(hart_state, pc, instr, dec, gpr_staged,
+                                   csr_staged)
 
 #endif // RISCV32_SIM_SERIALIZE_HPP
