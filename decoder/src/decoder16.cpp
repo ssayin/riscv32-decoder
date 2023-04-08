@@ -241,6 +241,8 @@ op decode16_quad2(uint16_t word) {
               2,       isn.rs2,          true,          false,
               true};
   }
+  default:
+    return make_illegal(true);
   }
 }
 
