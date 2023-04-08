@@ -48,13 +48,15 @@ struct rvc_lui /* CI */ {
   rvc_lui(uint16_t w) { unpack(w); }
 };
 
+// ALSO EXTRACT C_NOP
 struct rvc_addi /* CI */ {
   uint32_t imm;
   uint8_t  rdrs1;
 
   void unpack(uint16_t w) {
     rdrs1 = offset(w, 7U, 11U);
-    assert(rdrs1 != 0);
+    // C_NOP
+    // assert(rdrs1 != 0);
     imm = offset(w, 2U, 6U) |
           static_cast<uint32_t>(
               static_cast<int32_t>(offset(w, 12U, 12U) << 31) >> 27);
