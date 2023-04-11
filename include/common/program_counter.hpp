@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 
 class program_counter {
 public:

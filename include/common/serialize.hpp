@@ -9,7 +9,7 @@
 #include "op.hpp"
 #include "program_counter.hpp"
 
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 
 template <typename... Ts> struct overload : Ts... {
   using Ts::operator()...;
