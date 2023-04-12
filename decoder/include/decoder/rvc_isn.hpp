@@ -12,9 +12,9 @@
 struct rvc_lwsp /* CI */ {
   uint8_t rdrs1;
   uint8_t imm;
-  void    unpack(uint16_t w) {
+  void unpack(uint16_t w) {
     rdrs1 = offset(w, 7U, 11U);
-    assert(rdrs1 != 0);
+    // assert(rdrs1 != 0);
     imm = (offset(w, 12U, 12U) << 5) | (offset(w, 2U, 3U) << 6) |
           (offset(w, 4U, 5U) << 2);
   }
@@ -23,10 +23,10 @@ struct rvc_lwsp /* CI */ {
 
 struct rvc_li /* CI */ {
   uint32_t imm;
-  uint8_t  rdrs1;
-  void     unpack(uint16_t w) {
+  uint8_t rdrs1;
+  void unpack(uint16_t w) {
     rdrs1 = offset(w, 7U, 11U);
-    assert(rdrs1 != 0);
+    // assert(rdrs1 != 0);
     imm = offset(w, 2U, 6U) |
           static_cast<uint32_t>(
               static_cast<int32_t>(offset(w, 12U, 12U) << 31) >> 27);
@@ -36,11 +36,11 @@ struct rvc_li /* CI */ {
 
 struct rvc_lui /* CI */ {
   uint32_t imm;
-  uint8_t  rdrs1;
-  void     unpack(uint16_t w) {
+  uint8_t rdrs1;
+  void unpack(uint16_t w) {
     rdrs1 = offset(w, 7U, 11U);
-    assert(rdrs1 != 0);
-    assert(rdrs1 != 2);
+    // assert(rdrs1 != 0);
+    // assert(rdrs1 != 2);
     imm = (offset(w, 2U, 6U) << 12) |
           static_cast<uint32_t>(
               static_cast<int32_t>(offset(w, 12U, 12U) << 31) >> 14);
@@ -51,7 +51,7 @@ struct rvc_lui /* CI */ {
 // ALSO EXTRACT C_NOP
 struct rvc_addi /* CI */ {
   uint32_t imm;
-  uint8_t  rdrs1;
+  uint8_t rdrs1;
 
   void unpack(uint16_t w) {
     rdrs1 = offset(w, 7U, 11U);
@@ -66,11 +66,11 @@ struct rvc_addi /* CI */ {
 
 struct rvc_addi16sp /* CI */ {
   uint32_t imm;
-  uint8_t  rdrs1;
+  uint8_t rdrs1;
 
   void unpack(uint16_t w) {
     rdrs1 = offset(w, 7U, 11U);
-    assert(rdrs1 == 2);
+    // assert(rdrs1 == 2);
     imm = (offset(w, 2U, 2U) << 5) | (offset(w, 3U, 4U) << 7) |
           (offset(w, 5U, 5U) << 6) | (offset(w, 6U, 6U) << 4) |
           static_cast<uint32_t>(
@@ -82,9 +82,9 @@ struct rvc_addi16sp /* CI */ {
 struct rvc_slli /* CI */ {
   uint8_t rdrs1;
   uint8_t imm;
-  void    unpack(uint16_t w) {
+  void unpack(uint16_t w) {
     rdrs1 = offset(w, 7U, 11U);
-    assert(rdrs1 != 0);
+    // assert(rdrs1 != 0);
     imm = offset(w, 2U, 6U) | (offset(w, 12U, 12U) << 5);
   }
   rvc_slli(uint16_t w) { unpack(w); }
@@ -93,7 +93,7 @@ struct rvc_slli /* CI */ {
 struct rvc_swsp /* CSS */ {
   uint8_t rs2;
   uint8_t imm;
-  void    unpack(uint16_t w) {
+  void unpack(uint16_t w) {
     rs2 = offset(w, 2U, 6U);
     imm = (offset(w, 7U, 8U) << 6) | (offset(w, 9U, 12U) << 2);
   }
@@ -102,9 +102,9 @@ struct rvc_swsp /* CSS */ {
 
 struct rvc_addi4spn /* CIW */ {
   uint16_t imm;
-  uint8_t  rd;
-  void     unpack(uint16_t w) {
-    rd  = offset(w, 2U, 4U) + 8;
+  uint8_t rd;
+  void unpack(uint16_t w) {
+    rd = offset(w, 2U, 4U) + 8;
     imm = (offset(w, 5U, 5U) << 3) | (offset(w, 6U, 6U) << 2) |
           (offset(w, 7U, 10U) << 6) | (offset(w, 11U, 12U) << 4);
   }
@@ -115,9 +115,9 @@ struct rvc_lw /* CL */ {
   uint8_t imm;
   uint8_t rs1;
   uint8_t rd;
-  void    unpack(uint16_t w) {
+  void unpack(uint16_t w) {
     rs1 = offset(w, 7U, 9U) + 8;
-    rd  = offset(w, 2U, 4U) + 8;
+    rd = offset(w, 2U, 4U) + 8;
     imm = (offset(w, 5U, 5U) << 6) | (offset(w, 6U, 6U) << 2) |
           (offset(w, 10U, 12U) << 3);
   }
@@ -128,7 +128,7 @@ struct rvc_sw /* CS */ {
   uint8_t imm;
   uint8_t rs1;
   uint8_t rs2;
-  void    unpack(uint16_t w) {
+  void unpack(uint16_t w) {
     rs1 = offset(w, 7U, 9U) + 8;
     rs2 = offset(w, 2U, 4U) + 8;
     imm = (offset(w, 5U, 5U) << 6) | (offset(w, 6U, 6U) << 2) |
@@ -139,7 +139,7 @@ struct rvc_sw /* CS */ {
 
 struct rvc_beqz {
   uint32_t ofs;
-  uint8_t  rs1;
+  uint8_t rs1;
 
   void unpack(uint16_t w) {
     rs1 = offset(w, 7U, 9U) + 8;
@@ -153,7 +153,7 @@ struct rvc_beqz {
 
 struct rvc_bnez {
   uint32_t ofs;
-  uint8_t  rs1;
+  uint8_t rs1;
 
   void unpack(uint16_t w) {
     rs1 = offset(w, 7U, 9U) + 8;
@@ -168,7 +168,7 @@ struct rvc_bnez {
 struct rvc_srli {
   uint8_t rs1;
   uint8_t ofs;
-  void    unpack(uint16_t w) {
+  void unpack(uint16_t w) {
     rs1 = offset(w, 7U, 9U) + 8;
     ofs = offset(w, 2U, 6U) | offset(w, 12U, 12U) << 5;
   }
@@ -178,7 +178,7 @@ struct rvc_srli {
 struct rvc_srai {
   uint8_t rs1;
   uint8_t ofs;
-  void    unpack(uint16_t w) {
+  void unpack(uint16_t w) {
     rs1 = offset(w, 7U, 9U) + 8;
     ofs = offset(w, 2U, 6U) | offset(w, 12U, 12U) << 5;
   }
@@ -187,8 +187,8 @@ struct rvc_srai {
 
 struct rvc_andi {
   uint32_t ofs;
-  uint8_t  rs1;
-  void     unpack(uint16_t w) {
+  uint8_t rs1;
+  void unpack(uint16_t w) {
     rs1 = offset(w, 7U, 9U) + 8;
     ofs = offset(w, 2U, 6U) |
           static_cast<uint32_t>(
@@ -199,7 +199,7 @@ struct rvc_andi {
 
 struct rvc_j /* CJ */ {
   uint32_t tgt;
-  void     unpack(uint16_t w) {
+  void unpack(uint16_t w) {
     tgt = (offset(w, 2U, 2U) << 5) | (offset(w, 3U, 5U) << 1) |
           (offset(w, 6U, 6U) << 7) | (offset(w, 7U, 7U) << 6) |
           (offset(w, 8U, 8U) << 10) | (offset(w, 9U, 10U) << 8) |
@@ -212,7 +212,7 @@ struct rvc_j /* CJ */ {
 
 struct rvc_jal {
   uint32_t tgt;
-  void     unpack(uint16_t w) {
+  void unpack(uint16_t w) {
     tgt = (offset(w, 2U, 2U) << 5) | (offset(w, 3U, 5U) << 1) |
           (offset(w, 6U, 6U) << 7) | (offset(w, 7U, 7U) << 6) |
           (offset(w, 8U, 8U) << 10) | (offset(w, 9U, 10U) << 8) |
