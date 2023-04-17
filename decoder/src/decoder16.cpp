@@ -96,13 +96,13 @@ op decode16_quad0(uint16_t word) {
   }
   case quad0::C_LW: {
     rvc_lw isn{word};
-    return op{isn.imm, masks::load::lw, target::load, isn.rs1, isn.rd, 0,
-              true,    false,           true};
+    return op{isn.imm, masks::load::lw, target::load, isn.rs1, isn.rd,
+              0,       false,           false,        true};
   }
   case quad0::C_SW: {
     rvc_sw isn{word};
     return op{isn.imm, masks::store::sw, target::store, 0,
-              isn.rs1, isn.rs2,          true,          false,
+              isn.rs1, isn.rs2,          false,         false,
               true};
   }
   default:
@@ -223,8 +223,8 @@ op decode16_quad2(uint16_t word) {
 
   case quad2::C_LWSP: {
     rvc_lwsp isn{word};
-    return op{isn.imm, masks::load::lw, target::load, isn.rdrs1, 2, 0,
-              true,    false,           true};
+    return op{isn.imm, masks::load::lw, target::load, isn.rdrs1, 2,
+              0,       false,           false,        true};
   }
   case quad2::OTHER:
     return decode16_quad2_extract_other(word);
@@ -232,7 +232,7 @@ op decode16_quad2(uint16_t word) {
   case quad2::C_SWSP: {
     rvc_swsp isn{word};
     return op{isn.imm, masks::store::sw, target::store, 0,
-              2,       isn.rs2,          true,          false,
+              2,       isn.rs2,          false,         false,
               true};
   }
   default:
