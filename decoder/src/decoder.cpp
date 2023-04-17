@@ -34,22 +34,22 @@
 namespace {
 template <typename T> inline op make_store(uint32_t word, masks::store type) {
   T isn{word};
-  return op{isn.imm, type, target::store, 0, isn.rs1, isn.rs2, true};
+  return op{isn.imm, type, target::store, 0, isn.rs1, isn.rs2, false};
 }
 
 template <typename T> inline op make_load(uint32_t word, masks::load type) {
   T isn{word};
-  return op{isn.imm, type, target::load, isn.rd, isn.rs, 0, true};
+  return op{isn.imm, type, target::load, isn.rd, isn.rs, 0, false};
 }
 
 template <typename T> inline op make_csr(uint32_t word, masks::sys type) {
   T isn{word};
-  return op{isn.csr, type, target::csr, isn.rd, isn.rs, 0, true};
+  return op{isn.csr, type, target::csr, isn.rd, isn.rs, 0, false};
 }
 
 template <typename T> inline op make_branch(uint32_t word, masks::branch type) {
   T isn{word};
-  return op{isn.imm, type, target::branch, 0, isn.rs1, isn.rs2, true};
+  return op{isn.imm, type, target::branch, 0, isn.rs1, isn.rs2, false};
 }
 
 template <typename T> inline op make_reg_imm(uint32_t word, alu type) {
