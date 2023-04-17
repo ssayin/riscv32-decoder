@@ -3,33 +3,6 @@
 // SPDX-License-Identifier: MIT
 
 #include "decoder/decoder.hpp"
-#include "decoder/rv32_isn.hpp"
-
-#define RV32_LOAD(name)                                                        \
-  case masks::load::name:                                                      \
-    return make_load<rv32_##name>(word, masks::load::name);
-
-#define RV32_STORE(name)                                                       \
-  case masks::store::name:                                                     \
-    return make_store<rv32_##name>(word, masks::store::name);
-
-#define RV32_CSR(name)                                                         \
-  case masks::sys::name:                                                       \
-    return make_csr<rv32_##name>(word, masks::sys::name);
-
-#define RV32_REG_IMM(name)                                                     \
-  case name##i:                                                                \
-    return make_reg_imm<rv32_##name##i>(word, alu::_##name);
-
-#define RV32_BRANCH(name)                                                      \
-  case masks::branch::name:                                                    \
-    return make_branch<rv32_##name>(word, masks::branch::name);
-
-#define RV32_REG_REG(name, funct7)                                             \
-  case funct7: {                                                               \
-    rv32_##name isn{word};                                                     \
-    return op{0, alu::_##name, target::alu, isn.rd, isn.rs1, isn.rs2, false};  \
-  }
 
 namespace {
 template <typename T> inline op make_store(uint32_t word, masks::store type) {
@@ -123,11 +96,16 @@ namespace {
 
 op decode_load(uint32_t word) {
   switch (masks::load{rv32::funct3(word)}) {
-    RV32_LOAD(lb)
-    RV32_LOAD(lh)
-    RV32_LOAD(lw)
-    RV32_LOAD(lbu)
-    RV32_LOAD(lhu)
+  case masks::load ::lb:
+    return make_load<rv32_lb>(word, masks::load ::lb);
+  case masks::load ::lh:
+    return make_load<rv32_lh>(word, masks::load ::lh);
+  case masks::load ::lw:
+    return make_load<rv32_lw>(word, masks::load ::lw);
+  case masks::load ::lbu:
+    return make_load<rv32_lbu>(word, masks::load ::lbu);
+  case masks::load ::lhu:
+    return make_load<rv32_lhu>(word, masks::load ::lhu);
   default:
     return make_illegal();
   }
@@ -135,9 +113,12 @@ op decode_load(uint32_t word) {
 
 op decode_store(uint32_t word) {
   switch (masks::store{rv32::funct3(word)}) {
-    RV32_STORE(sb)
-    RV32_STORE(sh)
-    RV32_STORE(sw)
+  case masks::store ::sb:
+    return make_store<rv32_sb>(word, masks::store ::sb);
+  case masks::store ::sh:
+    return make_store<rv32_sh>(word, masks::store ::sh);
+  case masks::store ::sw:
+    return make_store<rv32_sw>(word, masks::store ::sw);
   default:
     return make_illegal();
   }
@@ -145,8 +126,14 @@ op decode_store(uint32_t word) {
 
 op decode_alu_and_remu(uint32_t word) {
   switch (rv32::funct7(word)) {
-    RV32_REG_REG(and, 0x0)
-    RV32_REG_REG(remu, 0x1)
+  case 0x0: {
+    rv32_and isn{word};
+    return op{0, alu::_and, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x1: {
+    rv32_remu isn{word};
+    return op{0, alu::_remu, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
   default:
     return make_illegal();
   }
@@ -154,8 +141,14 @@ op decode_alu_and_remu(uint32_t word) {
 
 op decode_alu_or_rem(uint32_t word) {
   switch (rv32::funct7(word)) {
-    RV32_REG_REG(or, 0x0)
-    RV32_REG_REG(rem, 0x1)
+  case 0x0: {
+    rv32_or isn{word};
+    return op{0, alu::_or, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x1: {
+    rv32_rem isn{word};
+    return op{0, alu::_rem, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
   default:
     return make_illegal();
   }
@@ -163,8 +156,14 @@ op decode_alu_or_rem(uint32_t word) {
 
 op decode_alu_xor_div(uint32_t word) {
   switch (rv32::funct7(word)) {
-    RV32_REG_REG(xor, 0x0)
-    RV32_REG_REG(div, 0x1)
+  case 0x0: {
+    rv32_xor isn{word};
+    return op{0, alu::_xor, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x1: {
+    rv32_div isn{word};
+    return op{0, alu::_div, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
   default:
     return make_illegal();
   }
@@ -172,9 +171,18 @@ op decode_alu_xor_div(uint32_t word) {
 
 op decode_alu_add_sub_mul(uint32_t word) {
   switch (rv32::funct7(word)) {
-    RV32_REG_REG(add, 0x0)
-    RV32_REG_REG(mul, 0x1)
-    RV32_REG_REG(sub, 0x20)
+  case 0x0: {
+    rv32_add isn{word};
+    return op{0, alu::_add, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x1: {
+    rv32_mul isn{word};
+    return op{0, alu::_mul, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x20: {
+    rv32_sub isn{word};
+    return op{0, alu::_sub, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
   default:
     return make_illegal();
   }
@@ -182,8 +190,14 @@ op decode_alu_add_sub_mul(uint32_t word) {
 
 op decode_alu_sll_mulh(uint32_t word) {
   switch (rv32::funct7(word)) {
-    RV32_REG_REG(sll, 0x0)
-    RV32_REG_REG(mulh, 0x1)
+  case 0x0: {
+    rv32_sll isn{word};
+    return op{0, alu::_sll, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x1: {
+    rv32_mulh isn{word};
+    return op{0, alu::_mulh, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
   default:
     return make_illegal();
   }
@@ -191,9 +205,18 @@ op decode_alu_sll_mulh(uint32_t word) {
 
 op decode_alu_srl_sra_divu(uint32_t word) {
   switch (rv32::funct7(word)) {
-    RV32_REG_REG(srl, 0x0)
-    RV32_REG_REG(divu, 0x1)
-    RV32_REG_REG(sra, 0x20)
+  case 0x0: {
+    rv32_srl isn{word};
+    return op{0, alu::_srl, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x1: {
+    rv32_divu isn{word};
+    return op{0, alu::_divu, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x20: {
+    rv32_sra isn{word};
+    return op{0, alu::_sra, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
   default:
     return make_illegal();
   }
@@ -201,8 +224,14 @@ op decode_alu_srl_sra_divu(uint32_t word) {
 
 op decode_alu_slt_mulhsu(uint32_t word) {
   switch (rv32::funct7(word)) {
-    RV32_REG_REG(slt, 0x0)
-    RV32_REG_REG(mulhsu, 0x1)
+  case 0x0: {
+    rv32_slt isn{word};
+    return op{0, alu::_slt, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x1: {
+    rv32_mulhsu isn{word};
+    return op{0, alu::_mulhsu, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
   default:
     return make_illegal();
   }
@@ -210,8 +239,14 @@ op decode_alu_slt_mulhsu(uint32_t word) {
 
 op decode_alu_sltu_mulhu(uint32_t word) {
   switch (rv32::funct7(word)) {
-    RV32_REG_REG(sltu, 0x0)
-    RV32_REG_REG(mulhu, 0x1)
+  case 0x0: {
+    rv32_sltu isn{word};
+    return op{0, alu::_sltu, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
+  case 0x1: {
+    rv32_mulhu isn{word};
+    return op{0, alu::_mulhu, target::alu, isn.rd, isn.rs1, isn.rs2, false};
+  }
   default:
     return make_illegal();
   }
@@ -244,19 +279,27 @@ op decode_alu(uint32_t word) {
 op decode_reg_imm(uint32_t word) {
   switch (masks::reg_imm{rv32::funct3(word)}) {
     using enum masks::reg_imm;
-    RV32_REG_IMM(add)
-    RV32_REG_IMM(slt)
-    RV32_REG_IMM(xor)
-    RV32_REG_IMM(or)
-    RV32_REG_IMM(and)
-    RV32_REG_IMM(sll)
+  case addi:
+    return make_reg_imm<rv32_addi>(word, alu::_add);
+  case slti:
+    return make_reg_imm<rv32_slti>(word, alu::_slt);
+  case xori:
+    return make_reg_imm<rv32_xori>(word, alu::_xor);
+  case ori:
+    return make_reg_imm<rv32_ori>(word, alu::_or);
+  case andi:
+    return make_reg_imm<rv32_andi>(word, alu::_and);
+  case slli:
+    return make_reg_imm<rv32_slli>(word, alu::_sll);
 
   case srli_srai: {
     constexpr int srli = 0x0;
     constexpr int srai = 0x20;
     switch (rv32::funct7(word)) {
-      RV32_REG_IMM(srl)
-      RV32_REG_IMM(sra)
+    case srli:
+      return make_reg_imm<rv32_srli>(word, alu::_srl);
+    case srai:
+      return make_reg_imm<rv32_srai>(word, alu::_sra);
     default:
       return make_illegal();
     }
@@ -273,12 +316,18 @@ op decode_reg_imm(uint32_t word) {
 
 op decode_branch(uint32_t word) {
   switch (masks::branch{rv32::funct3(word)}) {
-    RV32_BRANCH(beq)
-    RV32_BRANCH(bne)
-    RV32_BRANCH(blt)
-    RV32_BRANCH(bltu)
-    RV32_BRANCH(bge)
-    RV32_BRANCH(bgeu)
+  case masks::branch::beq:
+    return make_branch<rv32_beq>(word, masks::branch::beq);
+  case masks::branch::bne:
+    return make_branch<rv32_bne>(word, masks::branch::bne);
+  case masks::branch::blt:
+    return make_branch<rv32_blt>(word, masks::branch::blt);
+  case masks::branch::bltu:
+    return make_branch<rv32_bltu>(word, masks::branch::bltu);
+  case masks::branch::bge:
+    return make_branch<rv32_bge>(word, masks::branch::bge);
+  case masks::branch::bgeu:
+    return make_branch<rv32_bgeu>(word, masks::branch::bgeu);
   default:
     return make_illegal();
   }
@@ -288,21 +337,20 @@ op decode_fence(uint32_t word) { return make_nop(); }
 
 op decode_sys(uint32_t word) {
   switch (masks::sys{rv32::funct3(word)}) {
-    RV32_CSR(csrrw)
-    RV32_CSR(csrrs)
-    RV32_CSR(csrrc)
-    RV32_CSR(csrrwi)
-    RV32_CSR(csrrsi)
-    RV32_CSR(csrrci)
+  case masks::sys::csrrw:
+    return make_csr<rv32_csrrw>(word, masks::sys::csrrw);
+  case masks::sys::csrrs:
+    return make_csr<rv32_csrrs>(word, masks::sys::csrrs);
+  case masks::sys::csrrc:
+    return make_csr<rv32_csrrc>(word, masks::sys::csrrc);
+  case masks::sys::csrrwi:
+    return make_csr<rv32_csrrwi>(word, masks::sys::csrrwi);
+  case masks::sys::csrrsi:
+    return make_csr<rv32_csrrsi>(word, masks::sys::csrrsi);
+  case masks::sys::csrrci:
+    return make_csr<rv32_csrrci>(word, masks::sys::csrrci);
   default:
     return make_illegal();
   }
 }
 } // namespace
-
-#undef RV32_REG_REG
-#undef RV32_LOAD
-#undef RV32_STORE
-#undef RV32_REG_IMM
-#undef RV32_BRANCH
-#undef RV32_CSR
