@@ -131,8 +131,7 @@ op decode16_quad1(uint16_t word) {
     // C_ADDI16SP
     if (offset(word, 7U, 11U) == 2) {
       rvc_addi16sp isn{word};
-      return op{isn.imm, alu::_add, target::alu, isn.rdrs1, 2,
-                2,       true,      false,       true};
+      return op{isn.imm, alu::_add, target::alu, 2, 2, 0, true, false, true};
       // C_LUI
     } else {
       rvc_lui isn{word};
