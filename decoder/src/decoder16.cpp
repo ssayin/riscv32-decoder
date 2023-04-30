@@ -20,25 +20,25 @@ constexpr uint16_t QUAD3 = 0b11;
 
 // Quad0
 enum class quad0 : uint16_t {
-  C_ADDI4SPN = 0b000,
-  C_FLD = 0b001,
-  C_LW = 0b010,
-  C_FLW = 0b011,
+  C_ADDI4SPN  = 0b000,
+  C_FLD       = 0b001,
+  C_LW        = 0b010,
+  C_FLW       = 0b011,
   C_RESERVED0 = 0b100,
-  C_FSD = 0b101,
-  C_SW = 0b110,
-  C_FSW = 0b111,
+  C_FSD       = 0b101,
+  C_SW        = 0b110,
+  C_FSW       = 0b111,
 };
 
 enum class quad1 : uint16_t {
-  C_ADDI = 0b000,
-  C_JAL = 0b001,
-  C_LI = 0b010,
+  C_ADDI         = 0b000,
+  C_JAL          = 0b001,
+  C_LI           = 0b010,
   C_ADDI16SP_LUI = 0b011,
-  C_ARITH = 0b100,
-  C_J = 0b101,
-  C_BEQZ = 0b110,
-  C_BNEZ = 0b111
+  C_ARITH        = 0b100,
+  C_J            = 0b101,
+  C_BEQZ         = 0b110,
+  C_BNEZ         = 0b111
 };
 
 // instr[11:10]
@@ -55,25 +55,24 @@ enum class arith {
 enum class arith_no_imm {
   C_SUB = 0b00,
   C_XOR = 0b01,
-  C_OR = 0b10,
+  C_OR  = 0b10,
   C_AND = 0b11
 };
 
 enum class quad2 : uint16_t {
-  C_SLLI = 0b000,
+  C_SLLI  = 0b000,
   C_FLDSP = 0b001,
-  C_LWSP = 0b010,
+  C_LWSP  = 0b010,
   C_FLWSP = 0b011,
   // C_JR, C_MV, C_EBREAK, C_JALR, C_ADD
-  OTHER = 0b100,
+  OTHER   = 0b100,
   C_FSDSP = 0b101,
-  C_SWSP = 0b110,
+  C_SWSP  = 0b110,
   C_FSWSP = 0b111
 };
 
 op decode16(uint16_t word) {
-  if ((word & 0xFFFF) == 0x0000)
-    return make_illegal(true);
+  if ((word & 0xFFFF) == 0x0000) return make_illegal(true);
   switch (word & 0b11) {
   case QUAD0:
     return decode16_quad0(word);
@@ -241,8 +240,8 @@ op decode16_quad2(uint16_t word) {
 }
 
 op decode16_quad2_extract_other(uint16_t word) {
-  auto bit_12 = offset(word, 12U, 12U);
-  auto bit_6_2 = offset(word, 2U, 6U);
+  auto bit_12   = offset(word, 12U, 12U);
+  auto bit_6_2  = offset(word, 2U, 6U);
   auto bit_11_7 = offset(word, 7U, 11U);
   if (bit_12 == 0b0) {
     if (bit_6_2 == 0U && bit_11_7 != 0U) /*jr*/ {
@@ -254,6 +253,8 @@ op decode16_quad2_extract_other(uint16_t word) {
       return op{0,       alu::_add, target::alu, isn.rdrs1, 0,
                 isn.rs2, false,     false,       true};
     }
+    // reserved
+    return make_nop(true);
   } else if (bit_12 == 0b1) {
     if (bit_6_2 == 0 && bit_11_7 == 0) /* ebreak*/ {
       return op{0, {}, target::ebreak, 0, 0, 0, false, false, true};
@@ -268,6 +269,8 @@ op decode16_quad2_extract_other(uint16_t word) {
       return op{0,       alu::_add, target::alu, isn.rdrs1, isn.rdrs1,
                 isn.rs2, false,     false,       true};
     }
+    // reserved
+    return make_nop(true);
   }
 
   return make_illegal(true);
