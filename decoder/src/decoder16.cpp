@@ -96,7 +96,7 @@ op decode16_quad0(uint16_t word) {
   }
   case quad0::C_LW: {
     rvc_lw isn{word};
-    return op{isn.imm, masks::load::lw, target::load, isn.rs1, isn.rd,
+    return op{isn.imm, masks::load::lw, target::load, isn.rd, isn.rs1,
               0,       false,           false,        true};
   }
   case quad0::C_SW: {
