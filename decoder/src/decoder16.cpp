@@ -72,7 +72,7 @@ enum class quad2 : uint16_t {
 };
 
 op decode16(uint16_t word) {
-  if (word == 0U)
+  if ((word & 0xFFFF) == 0x0000)
     return make_illegal(true);
   switch (word & 0b11) {
   case QUAD0:
