@@ -96,16 +96,16 @@ namespace {
 
 op decode_load(uint32_t word) {
   switch (masks::load{rv32::funct3(word)}) {
-  case masks::load ::lb:
-    return make_load<rv32_lb>(word, masks::load ::lb);
-  case masks::load ::lh:
-    return make_load<rv32_lh>(word, masks::load ::lh);
-  case masks::load ::lw:
-    return make_load<rv32_lw>(word, masks::load ::lw);
-  case masks::load ::lbu:
-    return make_load<rv32_lbu>(word, masks::load ::lbu);
-  case masks::load ::lhu:
-    return make_load<rv32_lhu>(word, masks::load ::lhu);
+  case masks::load::lb:
+    return make_load<rv32_lb>(word, masks::load::lb);
+  case masks::load::lh:
+    return make_load<rv32_lh>(word, masks::load::lh);
+  case masks::load::lw:
+    return make_load<rv32_lw>(word, masks::load::lw);
+  case masks::load::lbu:
+    return make_load<rv32_lbu>(word, masks::load::lbu);
+  case masks::load::lhu:
+    return make_load<rv32_lhu>(word, masks::load::lhu);
   default:
     return make_illegal();
   }
@@ -113,12 +113,12 @@ op decode_load(uint32_t word) {
 
 op decode_store(uint32_t word) {
   switch (masks::store{rv32::funct3(word)}) {
-  case masks::store ::sb:
-    return make_store<rv32_sb>(word, masks::store ::sb);
-  case masks::store ::sh:
-    return make_store<rv32_sh>(word, masks::store ::sh);
-  case masks::store ::sw:
-    return make_store<rv32_sw>(word, masks::store ::sw);
+  case masks::store::sb:
+    return make_store<rv32_sb>(word, masks::store::sb);
+  case masks::store::sh:
+    return make_store<rv32_sh>(word, masks::store::sh);
+  case masks::store::sw:
+    return make_store<rv32_sw>(word, masks::store::sw);
   default:
     return make_illegal();
   }

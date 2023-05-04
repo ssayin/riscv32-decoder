@@ -11,76 +11,75 @@ op decode16_quad2(uint16_t word);
 
 op decode16_quad2_extract_other(uint16_t word);
 
-constexpr uint16_t QUAD0 = 0b00;
-constexpr uint16_t QUAD1 = 0b01;
-constexpr uint16_t QUAD2 = 0b10;
-constexpr uint16_t QUAD3 = 0b11;
+constexpr uint16_t quad_0 = 0b00;
+constexpr uint16_t quad_1 = 0b01;
+constexpr uint16_t quad_2 = 0b10;
+constexpr uint16_t quad_3 = 0b11;
 
 } // namespace
 
-// Quad0
 enum class quad0 : uint16_t {
-  C_ADDI4SPN  = 0b000,
-  C_FLD       = 0b001,
-  C_LW        = 0b010,
-  C_FLW       = 0b011,
-  C_RESERVED0 = 0b100,
-  C_FSD       = 0b101,
-  C_SW        = 0b110,
-  C_FSW       = 0b111,
+  c_addi4spn  = 0b000,
+  c_fld       = 0b001,
+  c_lw        = 0b010,
+  c_flw       = 0b011,
+  c_reserved0 = 0b100,
+  c_fsd       = 0b101,
+  c_sw        = 0b110,
+  c_fsw       = 0b111,
 };
 
 enum class quad1 : uint16_t {
-  C_ADDI         = 0b000,
-  C_JAL          = 0b001,
-  C_LI           = 0b010,
-  C_ADDI16SP_LUI = 0b011,
-  C_ARITH        = 0b100,
-  C_J            = 0b101,
-  C_BEQZ         = 0b110,
-  C_BNEZ         = 0b111
+  c_addi         = 0b000,
+  c_jal          = 0b001,
+  c_li           = 0b010,
+  c_addi16sp_lui = 0b011,
+  c_arith        = 0b100,
+  c_j            = 0b101,
+  c_beqz         = 0b110,
+  c_bnez         = 0b111
 };
 
 // instr[11:10]
 enum class arith {
-  C_SRLI = 0b00,
-  C_SRAI = 0b01,
-  C_ANDI = 0b10,
+  c_srli = 0b00,
+  c_srai = 0b01,
+  c_andi = 0b10,
   // C_SUB, C_XOR, C_OR, C_AND
-  ARITH_NO_IMM = 0b11
+  arith_no_imm = 0b11
 };
 
 // instr[6:5]
 // [12:12] should be 0 for 32-bit OPS, 1 for 64-bit OPS
 enum class arith_no_imm {
-  C_SUB = 0b00,
-  C_XOR = 0b01,
-  C_OR  = 0b10,
-  C_AND = 0b11
+  c_sub = 0b00,
+  c_xor = 0b01,
+  c_or  = 0b10,
+  c_and = 0b11
 };
 
 enum class quad2 : uint16_t {
-  C_SLLI  = 0b000,
-  C_FLDSP = 0b001,
-  C_LWSP  = 0b010,
-  C_FLWSP = 0b011,
+  c_slli  = 0b000,
+  c_fldsp = 0b001,
+  c_lwsp  = 0b010,
+  c_flwsp = 0b011,
   // C_JR, C_MV, C_EBREAK, C_JALR, C_ADD
-  OTHER   = 0b100,
-  C_FSDSP = 0b101,
-  C_SWSP  = 0b110,
-  C_FSWSP = 0b111
+  other   = 0b100,
+  c_fsdsp = 0b101,
+  c_swsp  = 0b110,
+  c_fswsp = 0b111
 };
 
 op decode16(uint16_t word) {
   if ((word & 0xFFFF) == 0x0000) return make_illegal(true);
   switch (word & 0b11) {
-  case QUAD0:
+  case quad_0:
     return decode16_quad0(word);
-  case QUAD1:
+  case quad_1:
     return decode16_quad1(word);
-  case QUAD2:
+  case quad_2:
     return decode16_quad2(word);
-  case QUAD3:
+  case quad_3:
   default:
     return make_illegal(true);
   }
@@ -89,16 +88,16 @@ op decode16(uint16_t word) {
 namespace {
 op decode16_quad0(uint16_t word) {
   switch (static_cast<quad0>(offset(word, 13U, 15U))) {
-  case quad0::C_ADDI4SPN: {
+  case quad0::c_addi4spn: {
     rvc_addi4spn isn{word};
     return op{isn.imm, alu::_add, target::alu, isn.rd, 2, 0, true, false, true};
   }
-  case quad0::C_LW: {
+  case quad0::c_lw: {
     rvc_lw isn{word};
     return op{isn.imm, masks::load::lw, target::load, isn.rd, isn.rs1,
               0,       false,           false,        true};
   }
-  case quad0::C_SW: {
+  case quad0::c_sw: {
     rvc_sw isn{word};
     return op{isn.imm, masks::store::sw, target::store, 0,
               isn.rs1, isn.rs2,          false,         false,
@@ -111,22 +110,22 @@ op decode16_quad0(uint16_t word) {
 
 op decode16_quad1(uint16_t word) {
   switch (static_cast<quad1>(offset(word, 13U, 15U))) {
-  case quad1::C_ADDI: {
+  case quad1::c_addi: {
     rvc_addi isn{word};
     return op{isn.imm, alu::_add, target::alu, isn.rdrs1, isn.rdrs1,
               0,       true,      false,       true};
   }
-  case quad1::C_JAL: {
+  case quad1::c_jal: {
     rvc_jal isn{word};
     return op{isn.tgt, alu::_jal, target::alu, 1, 0, 0, true, true, true};
   }
-  case quad1::C_LI: {
+  case quad1::c_li: {
     rvc_li isn{word};
     return op{isn.imm, alu::_add, target::alu, isn.rdrs1, 0,
               0,       true,      false,       true};
   }
 
-  case quad1::C_ADDI16SP_LUI: {
+  case quad1::c_addi16sp_lui: {
     // C_ADDI16SP
     if (offset(word, 7U, 11U) == 2) {
       rvc_addi16sp isn{word};
@@ -138,41 +137,41 @@ op decode16_quad1(uint16_t word) {
                 0,       true,      false,       true};
     }
   }
-  case quad1::C_ARITH: {
+  case quad1::c_arith: {
     switch (static_cast<arith>(offset(word, 10U, 11U))) {
-    case arith::C_SRLI: {
+    case arith::c_srli: {
       rvc_srli isn{word};
       return op{isn.ofs, alu::_srl, target::alu, isn.rs1, isn.rs1,
                 0,       true,      false,       true};
     }
-    case arith::C_SRAI: {
+    case arith::c_srai: {
       rvc_srai isn{word};
       return op{isn.ofs, alu::_sra, target::alu, isn.rs1, isn.rs1,
                 0,       true,      false,       true};
     }
-    case arith::C_ANDI: {
+    case arith::c_andi: {
       rvc_andi isn{word};
       return op{isn.ofs, alu::_and, target::alu, isn.rs1, isn.rs1,
                 0,       true,      false,       true};
     }
-    case arith::ARITH_NO_IMM: {
+    case arith::arith_no_imm: {
       switch (static_cast<arith_no_imm>(offset(word, 5U, 6U))) {
-      case arith_no_imm::C_SUB: {
+      case arith_no_imm::c_sub: {
         rvc_sub isn{word};
         return op{0,       alu::_sub, target::alu, isn.rdrs1, isn.rdrs1,
                   isn.rs2, false,     false,       true};
       }
-      case arith_no_imm::C_XOR: {
+      case arith_no_imm::c_xor: {
         rvc_xor isn{word};
         return op{0,       alu::_xor, target::alu, isn.rdrs1, isn.rdrs1,
                   isn.rs2, false,     false,       true};
       }
-      case arith_no_imm::C_OR: {
+      case arith_no_imm::c_or: {
         rvc_or isn{word};
         return op{0,       alu::_or, target::alu, isn.rdrs1, isn.rdrs1,
                   isn.rs2, false,    false,       true};
       }
-      case arith_no_imm::C_AND: {
+      case arith_no_imm::c_and: {
         rvc_and isn{word};
         return op{0,       alu::_and, target::alu, isn.rdrs1, isn.rdrs1,
                   isn.rs2, false,     false,       true};
@@ -185,17 +184,17 @@ op decode16_quad1(uint16_t word) {
       return make_illegal(true);
     }
   }
-  case quad1::C_J: {
+  case quad1::c_j: {
     rvc_j isn{word};
     return op{isn.tgt, alu::_jal, target::alu, 0, 0, true, true, true};
   }
-  case quad1::C_BEQZ: {
+  case quad1::c_beqz: {
     rvc_beqz isn{word};
     return op{
         isn.ofs, masks::branch::beq, target::branch, 0, isn.rs1, 0, true, false,
         true};
   }
-  case quad1::C_BNEZ: {
+  case quad1::c_bnez: {
     rvc_bnez isn{word};
     return op{
         isn.ofs, masks::branch::bne, target::branch, 0, isn.rs1, 0, true, false,
@@ -208,27 +207,27 @@ op decode16_quad1(uint16_t word) {
 
 op decode16_quad2(uint16_t word) {
   switch (static_cast<quad2>(offset(word, 13U, 15U))) {
-  case quad2::C_SLLI: {
+  case quad2::c_slli: {
     rvc_slli isn{word};
     return op{isn.imm,   alu::_sll, target::alu, isn.rdrs1, isn.rdrs1,
               isn.rdrs1, true,      false,       true};
   }
     // Floating point RVC for RV32
-  case quad2::C_FLDSP:
-  case quad2::C_FLWSP:
-  case quad2::C_FSDSP:
-  case quad2::C_FSWSP:
+  case quad2::c_fldsp:
+  case quad2::c_flwsp:
+  case quad2::c_fsdsp:
+  case quad2::c_fswsp:
     return make_illegal(true);
 
-  case quad2::C_LWSP: {
+  case quad2::c_lwsp: {
     rvc_lwsp isn{word};
     return op{isn.imm, masks::load::lw, target::load, isn.rdrs1, 2,
               0,       false,           false,        true};
   }
-  case quad2::OTHER:
+  case quad2::other:
     return decode16_quad2_extract_other(word);
 
-  case quad2::C_SWSP: {
+  case quad2::c_swsp: {
     rvc_swsp isn{word};
     return op{isn.imm, masks::store::sw, target::store, 0,
               2,       isn.rs2,          false,         false,
