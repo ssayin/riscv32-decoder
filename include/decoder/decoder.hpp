@@ -5,9 +5,7 @@
 #ifndef DECODER_DECODER_HPP
 #define DECODER_DECODER_HPP
 
-#include "common/offset.hpp"
-#include "common/op.hpp"
-#include "common/types.hpp"
+#include "common/common.hpp"
 
 struct rv32 {
   constexpr static uint8_t funct7(uint32_t w) { return offset(w, 25U, 31U); }
